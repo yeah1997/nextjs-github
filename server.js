@@ -15,6 +15,7 @@ app.prepare().then(() => {
   server.use(async (ctx, next) => {
     await handle(ctx.req, ctx.res);
     ctx.respond = false;
+    await next();
   });
 
   server.use(router.routes());
