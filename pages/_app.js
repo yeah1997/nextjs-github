@@ -1,4 +1,7 @@
 import App, { Container } from "next/app";
+import { Provider } from "react-redux";
+import store from "../store/store";
+import MyContext from "../lib/my-context";
 
 class MyApp extends App {
   static async getInitialProps({ Component, ctx }) {
@@ -17,7 +20,11 @@ class MyApp extends App {
 
     return (
       <Container>
-        <Component {...pageProps} />
+        <Provider store={store}>
+          <MyContext.Provider value="test">
+            <Component {...pageProps} />
+          </MyContext.Provider>
+        </Provider>
       </Container>
     );
   }
