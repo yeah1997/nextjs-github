@@ -21,12 +21,18 @@ const allReducers = combineReducers({
   counter: counterReducer,
 });
 
-const store = createStore(
-  allReducers,
-  {
-    counter: initialState,
-  },
-  composeWithDevTools(applyMiddleware(ReduxThink))
-);
+export default function initializeStore(state) {
+  const store = createStore(
+    allReducers,
+    Object.assign(
+      {},
+      {
+        counter: initialState,
+      },
+      state
+    ),
+    composeWithDevTools(applyMiddleware(ReduxThink))
+  );
 
-export default store;
+  return store;
+}
