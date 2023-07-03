@@ -1,13 +1,9 @@
 import App, { Container } from "next/app";
 import { Provider } from "react-redux";
 import Layout from "../components/Layout";
-import WithReduxApp from "../lib/with-redux";
-
 class MyApp extends App {
-  static async getInitialProps(ctx) {
-    const { Component } = ctx;
+  static async getInitialProps({ Component, ctx }) {
     let pageProps;
-
     if (Component.getInitialProps) {
       pageProps = await Component.getInitialProps(ctx);
     }
@@ -17,9 +13,9 @@ class MyApp extends App {
     };
   }
 
-  render() {
+  return() {
     const { Component, pageProps, reduxStore } = this.props;
-    console.log("123");
+
     return (
       <Container>
         <Layout>
@@ -32,4 +28,4 @@ class MyApp extends App {
   }
 }
 
-export default WithReduxApp(MyApp);
+export default MyApp;

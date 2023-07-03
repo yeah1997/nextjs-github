@@ -4,7 +4,7 @@ const Router = require("koa-router");
 // Next JS
 const next = require("next");
 
-const dev = process.env.NODE_ENV !== "prod";
+const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
@@ -14,7 +14,6 @@ app.prepare().then(() => {
 
   server.use(async (ctx, next) => {
     await handle(ctx.req, ctx.res);
-    ctx.respond = false;
     await next();
   });
 
