@@ -4,10 +4,15 @@ const Router = require("koa-router");
 const Session = require("koa-session");
 // Next JS
 const next = require("next");
+// Redis
+const RedisSessionStore = require("./server/session-store");
+const Redis = require("ioredis");
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
+// create redis client
+const redis = new Redis();
 
 app.prepare().then(() => {
   const server = new Koa();
@@ -16,15 +21,10 @@ app.prepare().then(() => {
   server.keys = ["Lee Dev Github App"];
   const SESSION_CONFIG = {
     key: "lee-id",
-    // store: {},
+    store: new RedisSessionStore(redis),
   };
 
   server.use(Session(SESSION_CONFIG, server));
-
-  server.use(async (ctx, next) => {
-    console.log("session is:", ctx.session);
-    await next();
-  });
 
   router.get("/set/user", async (ctx) => {
     ctx.session.user = {
