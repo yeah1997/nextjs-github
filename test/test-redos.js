@@ -6,7 +6,7 @@ const redis = new Redis({
 
 async function keysLog() {
   const keys = await redis.keys("*");
-  console.log(keys);
+  // console.log(keys);
 }
 
 keysLog();

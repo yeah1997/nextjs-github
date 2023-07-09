@@ -19,7 +19,6 @@ class MyApp extends App {
 
   render() {
     const { Component, pageProps, reduxStore } = this.props;
-    console.log("123");
     return (
       <Container>
         <Layout>
