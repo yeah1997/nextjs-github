@@ -1,12 +1,14 @@
-import { Layout, Icon, Input,Avatar } from "antd"
+import { Layout, Icon, Input, Avatar, Tooltip, Dropdown, Menu } from "antd"
 import { useCallback, useState } from "react"
+import { connect } from "react-redux"
 
 import Container from "./Container"
 import getConfig from "next/config"
 
+
 const { publicRuntimeConfig } = getConfig()
 
-export default ({ children }) => {
+function MyLayout ({ children, user })  {
   const { Header, Content, Footer } = Layout
   const [search, setSearch] = useState("")
 
@@ -16,7 +18,6 @@ export default ({ children }) => {
     fontSize: "30px",
     marginRight: "20px"
   }
-
   const footerStyle = {
     textAlign: "center"
   }
@@ -25,9 +26,24 @@ export default ({ children }) => {
     setSearch(e.target.value)
   }, [setSearch])
 
-  const handleOnSearch = useCallback(() => {
+  const handleOnSearch = useCallback(() => { })
 
-  })
+  const userDropDown = (
+    <Menu>
+      <Menu.Item key="1">
+        <Icon type="user" />
+        1st menu item
+      </Menu.Item>
+      <Menu.Item key="2">
+        <Icon type="user" />
+        2nd menu item
+      </Menu.Item>
+      <Menu.Item key="3">
+        <Icon type="user" />
+        3rd item
+      </Menu.Item>
+    </Menu>
+  )
 
   return (
     <Layout>
@@ -48,9 +64,21 @@ export default ({ children }) => {
           </div>
           <div className="header-right">
             <div className="user">
-              <a href={publicRuntimeConfig.OAUTH_URL}>
-                <Avatar size={40} icon="user"/>
-              </a>
+              {user && user.id ? (
+                <Dropdown overlay={userDropDown}>
+                  <a href="/">
+                    <Avatar size={40} src={user.avatar_url} />
+                  </a>
+                </Dropdown>
+
+                ) : (
+                  <Tooltip title="Click to Login">
+                    <a href={publicRuntimeConfig.OAUTH_URL}>
+                      <Avatar size={40} icon="user" />
+                    </a>
+                  </Tooltip>
+                )
+              }
             </div>
           </div>
         </Container>
@@ -94,3 +122,9 @@ export default ({ children }) => {
     </Layout>
   )
 }
+
+export default connect(function mapState(state) {
+  return {
+     user: state.user
+   }
+})(MyLayout)
