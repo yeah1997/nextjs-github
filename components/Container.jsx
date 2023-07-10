@@ -4,7 +4,7 @@ const style = {
   width: '100%',
   maxWidth: 1200,
   margin: '0 auto',
-  paddingLeft: '20px'
+  padding: '0 20px'
 }
 
 export default ({ children, renderer = <div/> }) => {
