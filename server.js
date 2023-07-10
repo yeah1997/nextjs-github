@@ -7,6 +7,8 @@ const next = require("next");
 // Redis
 const RedisSessionStore = require("./server/session-store");
 const Redis = require("ioredis");
+// auth, session
+const auth = require("./server/auth");
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
@@ -26,12 +28,17 @@ app.prepare().then(() => {
 
   server.use(Session(SESSION_CONFIG, server));
 
-  router.get("/set/user", async (ctx) => {
-    ctx.session.user = {
-      name: "Lee",
-      age: 18,
-    };
-    ctx.body = "set session success";
+  auth(server);
+
+  router.get("/api/user/info", async (ctx) => {
+    const user = ctx.session.userInfo;
+    if (!user) {
+      ctx.status = 401;
+      ctx.body = "Need Login";
+      return;
+    }
+    ctx.body = user;
+    ctx.set("Content-Type", "application/json");
   });
 
   server.use(router.routes());
