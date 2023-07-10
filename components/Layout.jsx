@@ -2,6 +2,9 @@ import { Layout, Icon, Input,Avatar } from "antd"
 import { useCallback, useState } from "react"
 
 import Container from "./Container"
+import getConfig from "next/config"
+
+const { publicRuntimeConfig } = getConfig()
 
 export default ({ children }) => {
   const { Header, Content, Footer } = Layout
@@ -45,7 +48,9 @@ export default ({ children }) => {
           </div>
           <div className="header-right">
             <div className="user">
-              <Avatar size={40} icon="user"/>
+              <a href={publicRuntimeConfig.OAUTH_URL}>
+                <Avatar size={40} icon="user"/>
+              </a>
             </div>
           </div>
         </Container>

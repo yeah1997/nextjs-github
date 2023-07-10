@@ -1,8 +1,5 @@
-import getConfig from "next/config";
 import { useEffect } from "react";
 import axios from "axios";
-
-const { publicRuntimeConfig } = getConfig();
 
 export default () => {
   useEffect(() => {
@@ -15,7 +12,7 @@ export default () => {
 
   return (
     <>
-      <a href={publicRuntimeConfig.OAUTH_URL}>Login</a>
+      <div>Index</div>
     </>
   );
 };
