@@ -3,15 +3,14 @@ function getRedisSessionId(sessionId) {
 }
 
 class RedisSessionStore {
-  constructor(client) {
-    this.client = client;
+  constructor(RedisClient) {
+    this.RedisClient = RedisClient;
   }
 
   // get session ID in Redis
   async get(sessionId) {
-    console.log("get session:", sessionId);
     const id = getRedisSessionId(sessionId);
-    const data = await this.client.get(id);
+    const data = await this.RedisClient.get(id);
     if (!data) {
       return null;
     }
@@ -28,7 +27,6 @@ class RedisSessionStore {
   async set(sessionId, session, ttl) {
     const id = getRedisSessionId(sessionId);
 
-    console.log("get session:", sessionId);
     if (typeof ttl === "number") {
       ttl = Math.ceil(ttl / 1000);
     }
@@ -36,7 +34,7 @@ class RedisSessionStore {
     try {
       const sessionStr = JSON.stringify(session);
       if (ttl) {
-        await this.client.setex(id, ttl, sessionStr);
+        await this.RedisClient.setex(id, ttl, sessionStr);
       } else {
         await this.set(id, sessionStr);
       }
@@ -47,9 +45,8 @@ class RedisSessionStore {
 
   // destroy session from redis
   async destroy(sessionId) {
-    console.log("destroy session:", sessionId);
     const id = getRedisSessionId(sessionId);
-    await this.client.del(id);
+    await this.RedisClient.del(id);
   }
 }
 
