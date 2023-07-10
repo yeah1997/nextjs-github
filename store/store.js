@@ -2,23 +2,17 @@ import { createStore, combineReducers, applyMiddleware } from "redux";
 import ReduxThink from "redux-thunk";
 import { composeWithDevTools } from "redux-devtools-extension";
 
-const initialState = {
-  count: 0,
-};
+const userInitialState = {};
 
-const ADD = "ADD";
-
-function counterReducer(state = initialState, action) {
+function userReducer(state = userInitialState, action) {
   switch (action.type) {
-    case ADD:
-      return { count: state.count + (action.num || 1) };
     default:
       return state;
   }
 }
 
 const allReducers = combineReducers({
-  counter: counterReducer,
+  user: userReducer,
 });
 
 export default function initializeStore(state) {
@@ -27,7 +21,7 @@ export default function initializeStore(state) {
     Object.assign(
       {},
       {
-        counter: initialState,
+        user: userInitialState,
       },
       state
     ),
