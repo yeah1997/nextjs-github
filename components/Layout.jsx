@@ -1,6 +1,8 @@
 import { Layout, Icon, Input,Avatar } from "antd"
 import { useCallback, useState } from "react"
 
+import Container from "./Container"
+
 export default ({ children }) => {
   const { Header, Content, Footer } = Layout
   const [search, setSearch] = useState("")
@@ -27,7 +29,7 @@ export default ({ children }) => {
   return (
     <Layout>
       <Header>
-        <div className="header-inner">
+        <Container renderer={<div className="header-inner" />}>
           <div className="header-left">
             <div className="logo">
               <Icon type="github" style={githubStyle} />
@@ -46,9 +48,11 @@ export default ({ children }) => {
               <Avatar size={40} icon="user"/>
             </div>
           </div>
-        </div>
+        </Container>
       </Header>
-      <Content>{children}</Content>
+      <Content>
+        <Container>{children}</Container>
+      </Content>
       <Footer style={footerStyle}>
         Develop by lee @
         <a href="mailto:lee7778889@gmail.com">lee7778889@gmail.com</a>
@@ -76,6 +80,9 @@ export default ({ children }) => {
         }
         .ant-layout {
           height: 100%;
+        }
+        .ant-layout-header {
+          padding: 0;
         }
       `}
       </style>
