@@ -4,11 +4,11 @@ import { connect } from "react-redux"
 
 import Container from "./Container"
 import getConfig from "next/config"
-
+import { signOut } from "../store/store"
 
 const { publicRuntimeConfig } = getConfig()
 
-function MyLayout ({ children, user })  {
+function MyLayout ({ children, user, signOut })  {
   const { Header, Content, Footer } = Layout
   const [search, setSearch] = useState("")
 
@@ -28,19 +28,14 @@ function MyLayout ({ children, user })  {
 
   const handleOnSearch = useCallback(() => { })
 
+  const handleSignOut = useCallback(() => {
+    signOut()
+  },[])
+
   const userDropDown = (
     <Menu>
       <Menu.Item key="1">
-        <Icon type="user" />
-        1st menu item
-      </Menu.Item>
-      <Menu.Item key="2">
-        <Icon type="user" />
-        2nd menu item
-      </Menu.Item>
-      <Menu.Item key="3">
-        <Icon type="user" />
-        3rd item
+        <a href="javascript:void(0)" onClick={handleSignOut}>Sign out</a>
       </Menu.Item>
     </Menu>
   )
@@ -127,4 +122,8 @@ export default connect(function mapState(state) {
   return {
      user: state.user
    }
+}, function mapReducer(dispatch) {
+  return {
+    signOut: ()=>dispatch(signOut())
+  }
 })(MyLayout)
