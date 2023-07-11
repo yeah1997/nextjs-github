@@ -1,14 +1,16 @@
 import { Layout, Icon, Input, Avatar, Tooltip, Dropdown, Menu } from "antd"
 import { useCallback, useState } from "react"
 import { connect } from "react-redux"
+import { withRouter } from "next/router"
 
 import Container from "./Container"
 import getConfig from "next/config"
 import { signOut } from "../store/store"
+import axios from "axios"
 
 const { publicRuntimeConfig } = getConfig()
 
-function MyLayout ({ children, user, signOut })  {
+function MyLayout ({ children, user, signOut, router })  {
   const { Header, Content, Footer } = Layout
   const [search, setSearch] = useState("")
 
@@ -30,7 +32,7 @@ function MyLayout ({ children, user, signOut })  {
 
   const handleSignOut = useCallback(() => {
     signOut()
-  },[])
+  }, [signOut])
 
   const userDropDown = (
     <Menu>
@@ -68,7 +70,7 @@ function MyLayout ({ children, user, signOut })  {
 
                 ) : (
                   <Tooltip title="Click to Login">
-                    <a href={publicRuntimeConfig.OAUTH_URL}>
+                    <a href={`/prepare-auth?url=${router.asPath}`}>
                       <Avatar size={40} icon="user" />
                     </a>
                   </Tooltip>
@@ -126,4 +128,4 @@ export default connect(function mapState(state) {
   return {
     signOut: ()=>dispatch(signOut())
   }
-})(MyLayout)
+})(withRouter(MyLayout))

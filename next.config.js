@@ -43,7 +43,7 @@ const SCOPE = "user";
 module.exports = withCss({
   distDir: "dest",
   publicRuntimeConfig: {
-    GITHUB_OAUTH_URL,
-    OAUTH_URL: `${GITHUB_OAUTH_URL}?client_id=${config.github.client_id}&scope=${SCOPE}`,
+    GITHUB_OAUTH_URL: config.GITHUB_OAUTH_URL,
+    OAUTH_URL: config.OAUTH_URL,
   },
 });
