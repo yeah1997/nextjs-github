@@ -1,9 +1,18 @@
 import App, { Container } from "next/app";
+import Router from "next/router";
+import Link from "next/link";
 import { Provider } from "react-redux";
+import axios from "axios";
+
 import Layout from "../components/Layout";
 import WithReduxApp from "../lib/with-redux";
+import PageLoading from "../components/PageLoading";
 
 class MyApp extends App {
+  state = {
+    loading: false,
+  };
+
   static async getInitialProps(ctx) {
     const { Component } = ctx;
     let pageProps;
@@ -17,12 +26,50 @@ class MyApp extends App {
     };
   }
 
+  startLoading = () => {
+    this.setState({
+      loading: true,
+    });
+    console.log(this.state.loading, "startLoading");
+  };
+
+  stopLoading = () => {
+    this.setState({
+      loading: false,
+    });
+    console.log(this.state.loading, "stopLoading");
+  };
+
+  componentDidMount() {
+    Router.events.on("routeChangeStart", this.startLoading);
+    Router.events.on("routeChangeComplete", this.stopLoading);
+    Router.events.on("routeChangeError", this.stopLoading);
+
+    axios.get("/github/search/repositories?q=react").then((res) => {
+      console.log(res, "res");
+    });
+  }
+
+  componentWillUnmount() {
+    Router.events.off("routeChangeStart", this.startLoading);
+    Router.events.off("routeChangeComplete", this.stopLoading);
+    Router.events.off("routeChangeError", this.stopLoading);
+  }
+
   render() {
     const { Component, pageProps, reduxStore } = this.props;
+
     return (
       <Container>
         <Provider store={reduxStore}>
+          {this.state.loading ? <PageLoading /> : null}
           <Layout>
+            <Link href="/">
+              <a>Index</a>
+            </Link>
+            <Link href="/detail">
+              <a>Detail</a>
+            </Link>
             <Component {...pageProps} />
           </Layout>
         </Provider>

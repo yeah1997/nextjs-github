@@ -68,7 +68,6 @@ module.exports = (server) => {
       const { url } = ctx.query;
 
       ctx.session.urlBeforeOAuth = url;
-      console.log(config.OAUTH_URL);
       ctx.redirect(config.OAUTH_URL);
     } else {
       await next();
