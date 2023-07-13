@@ -1,46 +1,28 @@
 const axios = require("axios");
-const github_base_url = "https://api.github.com";
+const { requestGithub } = require("../lib/api");
 
 module.exports = (server) => {
   server.use(async (ctx, next) => {
-    const path = ctx.path;
+    const { path, method, session } = ctx;
+
     if (path.startsWith("/github/")) {
-      const githubAuth = ctx.session.githubAuth;
-      const githubPath = `${github_base_url}${ctx.url.replace(
-        "/github/",
-        "/"
-      )}`;
-      const token = githubAuth && githubAuth.access_token;
+      const githubAuth = session && session.githubAuth;
       const headers = {};
 
-      if (token) {
-        headers["Authorization"] = `${githubAuth.token_type} ${token}`;
+      if (githubAuth && githubAuth.access_token) {
+        headers[
+          "Authorization"
+        ] = `${githubAuth.token_type} ${githubAuth.access_token}`;
       }
 
-      try {
-        const res = await axios({
-          method: "GET",
-          url: githubPath,
-          headers,
-        });
-
-        if (res.status === 200) {
-          ctx.body = res.data;
-          ctx.set("Content-Type", "application/json");
-        } else {
-          ctx.status = res.status;
-          ctx.body = {
-            success: false,
-          };
-          ctx.set("Content-Type", "application/json");
-        }
-      } catch (err) {
-        console.log(err, "error");
-        ctx.body = {
-          success: false,
-        };
-        ctx.set("Content-Type", "application/json");
-      }
+      const res = await requestGithub({
+        method,
+        url: `${ctx.url.replace("/github/", "/")}`,
+        data: {},
+        headers,
+      });
+      ctx.status = res.status;
+      ctx.body = res.data;
     } else {
       await next();
     }
