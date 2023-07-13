@@ -30,14 +30,12 @@ class MyApp extends App {
     this.setState({
       loading: true,
     });
-    console.log(this.state.loading, "startLoading");
   };
 
   stopLoading = () => {
     this.setState({
       loading: false,
     });
-    console.log(this.state.loading, "stopLoading");
   };
 
   componentDidMount() {

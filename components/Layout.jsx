@@ -1,18 +1,17 @@
 import { Layout, Icon, Input, Avatar, Tooltip, Dropdown, Menu } from "antd"
 import { useCallback, useState } from "react"
 import { connect } from "react-redux"
-import { withRouter } from "next/router"
+import {  withRouter } from "next/router"
+import Link from "next/link"
 
 import Container from "./Container"
-import getConfig from "next/config"
 import { signOut } from "../store/store"
-import axios from "axios"
 
-const { publicRuntimeConfig } = getConfig()
 
 function MyLayout ({ children, user, signOut, router })  {
+  const urlSearchQuery = router.query && router.query.query
   const { Header, Content, Footer } = Layout
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState(urlSearchQuery || "")
 
   const githubStyle = {
     display: "block",
@@ -28,7 +27,9 @@ function MyLayout ({ children, user, signOut, router })  {
     setSearch(e.target.value)
   }, [setSearch])
 
-  const handleOnSearch = useCallback(() => { })
+  const handleOnSearch = useCallback(() => {
+    router.push(`/search?query=${search}`)
+  }, [search])
 
   const handleSignOut = useCallback(() => {
     signOut()
@@ -48,7 +49,9 @@ function MyLayout ({ children, user, signOut, router })  {
         <Container renderer={<div className="header-inner" />}>
           <div className="header-left">
             <div className="logo">
-              <Icon type="github" style={githubStyle} />
+              <Link href="/">
+                <Icon type="github" style={githubStyle} />
+              </Link>
             </div>
             <div>
               <Input.Search
@@ -62,7 +65,7 @@ function MyLayout ({ children, user, signOut, router })  {
           <div className="header-right">
             <div className="user">
               {user && user.id ? (
-                <Dropdown overlay={userDropDown}>
+                <Dropdown overlay={userDropDown} trigger={['click']}>
                   <a href="/">
                     <Avatar size={40} src={user.avatar_url} />
                   </a>
@@ -109,10 +112,13 @@ function MyLayout ({ children, user, signOut, router })  {
           height: 100%;
         }
         .ant-layout {
-          height: 100%;
+          min-height: 100%;
         }
         .ant-layout-header {
           padding: 0;
+        }
+        .ant-layout-content {
+          background: #fff
         }
       `}
       </style>
