@@ -2,6 +2,7 @@
 const Koa = require("koa");
 const Router = require("koa-router");
 const Session = require("koa-session");
+const koaBody = require("koa-body");
 // Next JS
 const next = require("next");
 // Redis
@@ -22,6 +23,7 @@ app.prepare().then(() => {
   const router = new Router();
 
   server.keys = ["Lee Dev Github App"];
+  server.use(koaBody());
   const SESSION_CONFIG = {
     key: "lee-id",
     store: new RedisSessionStore(redis),

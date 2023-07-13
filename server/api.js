@@ -15,10 +15,12 @@ module.exports = (server) => {
         ] = `${githubAuth.token_type} ${githubAuth.access_token}`;
       }
 
+      console.log(ctx.request.body, "body");
+
       const res = await requestGithub({
         method,
         url: `${ctx.url.replace("/github/", "/")}`,
-        data: {},
+        data: ctx.request.body || {},
         headers,
       });
       ctx.status = res.status;
