@@ -30,7 +30,7 @@ export function signOut() {
           type: SIGN_OUT,
         });
       } else {
-        console.log("sign out failed", es);
+        console.log("sign out failed", res);
       }
     } catch (err) {}
   };
