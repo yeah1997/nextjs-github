@@ -15,7 +15,7 @@ module.exports = (server) => {
         ] = `${githubAuth.token_type} ${githubAuth.access_token}`;
       }
 
-      console.log(ctx.request.body, "body");
+      console.log(ctx.url, "url");
 
       const res = await requestGithub({
         method,
