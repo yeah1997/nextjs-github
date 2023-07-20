@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Row, Col, List } from "antd";
-import { withRouter } from "next/router";
+import Router, { withRouter } from "next/router";
 
 const api = require("../lib/api");
 
@@ -31,7 +31,38 @@ const SORT_TYPES = [
   },
 ];
 
+const selectedItemStyle = {
+  borderLeft: "2px solid #e36209",
+  fontWeight: 700,
+};
 function Search({ repos, router }) {
+  const { sort, order, lang, query } = router.query;
+
+  const handleLanguageChange = (language) => {
+    Router.push({
+      pathname: "/search",
+      query: {
+        query,
+        lang: language,
+        sort,
+        order,
+      },
+    });
+  };
+
+  const handleSortChange = (sort) => {
+    console.log(sort);
+    Router.push({
+      pathname: "/search",
+      query: {
+        query,
+        lang,
+        sort: sort.value,
+        order: sort.order,
+      },
+    });
+  };
+
   return (
     <div className="root">
       <Row gutter={20}>
@@ -42,25 +73,41 @@ function Search({ repos, router }) {
             style={{ marginBottom: 20 }}
             dataSource={LANGUAGE}
             renderItem={(item) => (
-              <List.Item>
-                <Link href="/search">
-                  <a>{item}</a>
-                </Link>
+              <List.Item style={item === lang ? selectedItemStyle : null}>
+                <a
+                  onClick={() => {
+                    handleLanguageChange(item);
+                  }}
+                >
+                  {item}
+                </a>
               </List.Item>
             )}
           />
           <List
             bordered
-            header={<span className="list-header">Order</span>}
+            header={<span className="list-header">Sort</span>}
             style={{ marginBottom: 20 }}
             dataSource={SORT_TYPES}
-            renderItem={(item) => (
-              <List.Item>
-                <Link href="/search">
-                  <a>{item.name}</a>
-                </Link>
-              </List.Item>
-            )}
+            renderItem={(item) => {
+              let selected = false;
+              if (item.name === "Best Math" && !sort) {
+                selected = true;
+              } else if (item.value === sort && item.order === order) {
+                selected = true;
+              }
+              return (
+                <List.Item style={selected ? selectedItemStyle : null}>
+                  <a
+                    onClick={() => {
+                      handleSortChange(item);
+                    }}
+                  >
+                    {item.name}
+                  </a>
+                </List.Item>
+              );
+            }}
           />
         </Col>
       </Row>
