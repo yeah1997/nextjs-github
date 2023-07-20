@@ -1,11 +1,19 @@
-import { Button, Icon } from "antd";
+import { Button, Icon, Tabs } from "antd";
 import getConfig from "next/config";
 import { connect } from "react-redux";
+
+import Router, { withRouter } from "next/router";
+import Repo from "../components/Repo";
 
 const api = require("../lib/api");
 const { publicRuntimeConfig } = getConfig();
 
-function Index({ userRepos, userStartedRepos, user }) {
+function Index({ userRepos, userStartedRepos, user, router }) {
+  const tabKey = router.query.key || "1";
+  const handleTabChange = (activeKey) => {
+    Router.push(`/?key=${activeKey}`);
+  };
+
   if (!user || !user.id) {
     return (
       <div className="root">
@@ -40,8 +48,20 @@ function Index({ userRepos, userStartedRepos, user }) {
         </p>
       </div>
       <div className="user-repos">
-        <p>User Repos</p>
+        <Tabs activeKey={tabKey} onChange={handleTabChange} animated={false}>
+          <Tabs.TabPane tab="My Repository" key="1">
+            {userRepos.map((repo, index) => (
+              <Repo repo={repo} />
+            ))}
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Following" key="2">
+            {userStartedRepos.map((repo, index) => (
+              <Repo repo={repo} />
+            ))}
+          </Tabs.TabPane>
+        </Tabs>
       </div>
+
       <style jsx>{`
         .root {
           display: flex;
@@ -71,6 +91,9 @@ function Index({ userRepos, userStartedRepos, user }) {
         .avatar {
           width: 100%;
           border-radius: 5px;
+        }
+        .user-repos {
+          flex-grow: 1;
         }
       `}</style>
     </div>
@@ -115,4 +138,4 @@ export default connect(function mapState(state) {
   return {
     user: state.user,
   };
-})(Index);
+})(withRouter(Index));
