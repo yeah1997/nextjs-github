@@ -5,20 +5,27 @@ import { connect } from "react-redux";
 
 import Router, { withRouter } from "next/router";
 import Repo from "../components/Repo";
+import LRU from "lru-cache";
 
 const api = require("../lib/api");
 const { publicRuntimeConfig } = getConfig();
+const cache = new LRU({
+  maxAge: 1000 * 60 * 10,
+});
 
 const isServer = typeof window === "undefined";
-let cachedUserRepos, cachedUserStaredRepos;
 
 function Index({ userRepos, userStartedRepos, user, router }) {
   useEffect(() => {
     if (!isServer) {
-      cachedUserRepos = userRepos;
-      cachedUserStaredRepos = userStartedRepos;
+      if (userRepos) {
+        cache.set("userRepos", userRepos);
+      }
+      if (userStartedRepos) {
+        cache.set("userStartedRepos", userStartedRepos);
+      }
     }
-  }, []);
+  }, [userRepos, userStartedRepos]);
 
   const tabKey = router.query.key || "1";
   const handleTabChange = (activeKey) => {
@@ -121,10 +128,10 @@ Index.getInitialProps = async ({ ctx, reduxStore }) => {
   }
 
   if (!isServer) {
-    if (cachedUserRepos && cachedUserStaredRepos) {
+    if (cache.get("userRepos") && cache.get("userStartedRepos")) {
       return {
-        userRepos: cachedUserRepos,
-        userStartedRepos: cachedUserStaredRepos,
+        userRepos: cache.get("userRepos"),
+        userStartedRepos: cache.get("userStartedRepos"),
       };
     }
   }
