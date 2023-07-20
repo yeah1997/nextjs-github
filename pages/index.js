@@ -1,5 +1,6 @@
 import { Button, Icon, Tabs } from "antd";
 import getConfig from "next/config";
+import { useEffect } from "react";
 import { connect } from "react-redux";
 
 import Router, { withRouter } from "next/router";
@@ -8,7 +9,17 @@ import Repo from "../components/Repo";
 const api = require("../lib/api");
 const { publicRuntimeConfig } = getConfig();
 
+let cachedUserRepos, cachedUserStaredRepos;
+
+const isServer = typeof window === "undefined";
 function Index({ userRepos, userStartedRepos, user, router }) {
+  useEffect(() => {
+    if (!isServer) {
+      cachedUserRepos = userRepos;
+      cachedUserStaredRepos = userStartedRepos;
+    }
+  }, []);
+
   const tabKey = router.query.key || "1";
   const handleTabChange = (activeKey) => {
     Router.push(`/?key=${activeKey}`);
@@ -51,12 +62,12 @@ function Index({ userRepos, userStartedRepos, user, router }) {
         <Tabs activeKey={tabKey} onChange={handleTabChange} animated={false}>
           <Tabs.TabPane tab="My Repository" key="1">
             {userRepos.map((repo, index) => (
-              <Repo repo={repo} />
+              <Repo key={repo.id} repo={repo} />
             ))}
           </Tabs.TabPane>
           <Tabs.TabPane tab="Following" key="2">
             {userStartedRepos.map((repo, index) => (
-              <Repo repo={repo} />
+              <Repo key={repo.id} repo={repo} />
             ))}
           </Tabs.TabPane>
         </Tabs>
@@ -109,6 +120,15 @@ Index.getInitialProps = async ({ ctx, reduxStore }) => {
     };
   }
 
+  if (!isServer) {
+    if (cachedUserRepos && cachedUserStaredRepos) {
+      return {
+        userRepos: cachedUserRepos,
+        userStartedRepos: cachedUserStaredRepos,
+      };
+    }
+  }
+
   const userReposRes = await api.request(
     {
       method: "GET",
@@ -134,8 +154,10 @@ Index.getInitialProps = async ({ ctx, reduxStore }) => {
   };
 };
 
-export default connect(function mapState(state) {
-  return {
-    user: state.user,
-  };
-})(withRouter(Index));
+export default withRouter(
+  connect(function mapState(state) {
+    return {
+      user: state.user,
+    };
+  })(Index)
+);
