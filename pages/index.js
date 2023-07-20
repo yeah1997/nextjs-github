@@ -9,9 +9,9 @@ import Repo from "../components/Repo";
 const api = require("../lib/api");
 const { publicRuntimeConfig } = getConfig();
 
+const isServer = typeof window === "undefined";
 let cachedUserRepos, cachedUserStaredRepos;
 
-const isServer = typeof window === "undefined";
 function Index({ userRepos, userStartedRepos, user, router }) {
   useEffect(() => {
     if (!isServer) {
