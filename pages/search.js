@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { Row, Col, List } from "antd";
-import Router, { withRouter } from "next/router";
+import { Row, Col, List, Pagination } from "antd";
+import { withRouter } from "next/router";
+import { memo, isValidElement } from "react";
+import Repo from "../components/Repo";
 
 const api = require("../lib/api");
 
@@ -30,59 +32,59 @@ const SORT_TYPES = [
     order: "asc",
   },
 ];
+const PER_PAGE = 20;
 
 const selectedItemStyle = {
   borderLeft: "2px solid #e36209",
   fontWeight: 700,
 };
+
+const FilterLink = memo(({ name, query, lang, sort, order, page }) => {
+  let queryString = `?query=${query}`;
+  if (lang) queryString += `&lang=${lang}`;
+  if (sort) queryString += `&sort=${sort}&order=${order || "desc"}`;
+  if (page) queryString += `&page=${page}`;
+  queryString += `&per_page=${PER_PAGE}`;
+
+  return (
+    <Link href={`/search${queryString}`} style={{ pointEvents: "none" }}>
+      {isValidElement(name) ? name : <a>{name}</a>}
+    </Link>
+  );
+});
+
+function noop() {}
+
 function Search({ repos, router }) {
-  const { sort, order, lang, query } = router.query;
-
-  const handleLanguageChange = (language) => {
-    Router.push({
-      pathname: "/search",
-      query: {
-        query,
-        lang: language,
-        sort,
-        order,
-      },
-    });
-  };
-
-  const handleSortChange = (sort) => {
-    console.log(sort);
-    Router.push({
-      pathname: "/search",
-      query: {
-        query,
-        lang,
-        sort: sort.value,
-        order: sort.order,
-      },
-    });
-  };
+  const { lang, sort, order, query, page } = router.query;
 
   return (
     <div className="root">
-      <Row gutter={20}>
+      <Row gutter={24}>
         <Col span={6}>
           <List
             bordered
             header={<span className="list-header">Language</span>}
             style={{ marginBottom: 20 }}
             dataSource={LANGUAGE}
-            renderItem={(item) => (
-              <List.Item style={item === lang ? selectedItemStyle : null}>
-                <a
-                  onClick={() => {
-                    handleLanguageChange(item);
-                  }}
-                >
-                  {item}
-                </a>
-              </List.Item>
-            )}
+            renderItem={(item) => {
+              const selected = item === lang;
+              return (
+                <List.Item style={selected ? selectedItemStyle : null}>
+                  {selected ? (
+                    <span>{item}</span>
+                  ) : (
+                    <FilterLink
+                      query={query}
+                      lang={item}
+                      name={item}
+                      order={order}
+                      sort={sort}
+                    />
+                  )}
+                </List.Item>
+              );
+            }}
           />
           <List
             bordered
@@ -98,19 +100,74 @@ function Search({ repos, router }) {
               }
               return (
                 <List.Item style={selected ? selectedItemStyle : null}>
-                  <a
-                    onClick={() => {
-                      handleSortChange(item);
-                    }}
-                  >
-                    {item.name}
-                  </a>
+                  {selected ? (
+                    <span>{item.name}</span>
+                  ) : (
+                    <FilterLink
+                      query={query}
+                      lang={lang}
+                      name={item.name}
+                      order={item.order}
+                      sort={item.value}
+                    />
+                  )}
                 </List.Item>
               );
             }}
           />
         </Col>
+        <Col span={18}>
+          <h3 className="repos-title">{repos.total_count} repositories</h3>
+          {repos.items.map((repo) => (
+            <Repo repo={repo} key={repo.id} />
+          ))}
+          <div className="pagination">
+            <Pagination
+              pageSize={PER_PAGE}
+              current={Number(page) || 1}
+              total={repos.total_count > 1000 ? 1000 : repos.total_count}
+              onChange={noop}
+              itemRender={(page, type, ol) => {
+                const pageMove =
+                  type === "page"
+                    ? page
+                    : type === "prev"
+                    ? page - 1
+                    : page + 1;
+                const name = type === "page" ? page : ol;
+                return (
+                  <FilterLink
+                    lang={lang}
+                    sort={sort}
+                    order={order}
+                    query={query}
+                    page={pageMove}
+                    name={name}
+                  />
+                );
+              }}
+            />
+          </div>
+        </Col>
       </Row>
+      <style jsx>{`
+        .root {
+          padding: 20px 0;
+        }
+        .list-header {
+          font-weight: 800;
+          font-size: 16px;
+        }
+        .repos-title {
+          border-bottom: 1px solid #eee;
+          font-size: 24px;
+          line-height: 50px;
+        }
+        .pagination {
+          padding: 20px;
+          text-algin: center;
+        }
+      `}</style>
     </div>
   );
 }
@@ -130,6 +187,7 @@ Search.getInitialProps = async ({ ctx }) => {
   if (lang) queryString += `+language:${lang}`;
   if (sort) queryString += `&sort=${sort}&order=${order || "desc"}`;
   if (page) queryString += `&page=${page}`;
+  queryString += `&per_page=${PER_PAGE}`;
 
   const result = await api.request(
     {
