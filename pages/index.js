@@ -1,29 +1,22 @@
 import { Button, Icon, Tabs } from "antd";
 import getConfig from "next/config";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { connect } from "react-redux";
 
 import Router, { withRouter } from "next/router";
 import Repo from "../components/Repo";
-import LRU from "lru-cache";
+import { cacheArray, get } from "../lib/repo-basic-cache";
 
 const api = require("../lib/api");
 const { publicRuntimeConfig } = getConfig();
-const cache = new LRU({
-  maxAge: 1000 * 60 * 10,
-});
 
 const isServer = typeof window === "undefined";
 
 function Index({ userRepos, userStartedRepos, user, router }) {
   useEffect(() => {
     if (!isServer) {
-      if (userRepos) {
-        cache.set("userRepos", userRepos);
-      }
-      if (userStartedRepos) {
-        cache.set("userStartedRepos", userStartedRepos);
-      }
+      cacheArray(userRepos);
+      cacheArray(userStartedRepos);
     }
   }, [userRepos, userStartedRepos]);
 
@@ -128,10 +121,10 @@ Index.getInitialProps = async ({ ctx, reduxStore }) => {
   }
 
   if (!isServer) {
-    if (cache.get("userRepos") && cache.get("userStartedRepos")) {
+    if (get("userRepos") && get("userStartedRepos")) {
       return {
-        userRepos: cache.get("userRepos"),
-        userStartedRepos: cache.get("userStartedRepos"),
+        userRepos: get("userRepos"),
+        userStartedRepos: get("userStartedRepos"),
       };
     }
   }

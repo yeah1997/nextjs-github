@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Row, Col, List, Pagination } from "antd";
 import { withRouter } from "next/router";
-import { memo, isValidElement } from "react";
+import { memo, isValidElement, useEffect } from "react";
 import Repo from "../components/Repo";
+import { cache, cacheArray } from "../lib/repo-basic-cache";
 
 const api = require("../lib/api");
 
@@ -38,7 +39,6 @@ const selectedItemStyle = {
   borderLeft: "2px solid #e36209",
   fontWeight: 700,
 };
-
 const FilterLink = memo(({ name, query, lang, sort, order, page }) => {
   let queryString = `?query=${query}`;
   if (lang) queryString += `&lang=${lang}`;
@@ -52,11 +52,16 @@ const FilterLink = memo(({ name, query, lang, sort, order, page }) => {
     </Link>
   );
 });
+const isServer = typeof window === "undefined";
 
 function noop() {}
 
 function Search({ repos, router }) {
   const { lang, sort, order, query, page } = router.query;
+
+  useEffect(() => {
+    if (!isServer) cacheArray(repos.items);
+  }, [repos]);
 
   return (
     <div className="root">
