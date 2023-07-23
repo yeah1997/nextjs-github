@@ -15,6 +15,9 @@ const api = require("./server/api");
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();
+const atob = require("atob");
+// global
+global.atob = atob;
 // create redis client
 const redis = new Redis();
 
