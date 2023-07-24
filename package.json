@@ -17,6 +17,7 @@
   "author": "lee",
   "license": "ISC",
   "dependencies": {
+    "@zeit/next-bundle-analyzer": "^0.1.2",
     "@zeit/next-css": "^1.0.1",
     "antd": "^3.13.6",
     "atob": "^2.1.2",
