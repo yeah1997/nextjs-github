@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import api from "../../lib/api";
 import withRepoBasic from "../../components/with-repo-basic";
 import { getLastUpdatedTime } from "../../util/time";
+import SearchUser from "../../components/SearchUser";
 
 const MarkdownRender = dynamic(() => import("../../components/MarkdownRender"));
 
@@ -97,8 +98,16 @@ function IssueItem({ issue }) {
 }
 
 function Issues({ issues }) {
+  const [creator, setCreator] = useState();
+
+  const handleCreatorChange = useCallback((value) => {
+    console.log(value, "value");
+    setCreator(value);
+  }, []);
+
   return (
     <div className="root">
+      <SearchUser onChange={handleCreatorChange} value={creator} />
       <div className="issues">
         {issues.map((issue) => (
           <IssueItem issue={issue} key={issue.id} />
