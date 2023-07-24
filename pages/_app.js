@@ -1,8 +1,6 @@
 import App, { Container } from "next/app";
 import Router from "next/router";
-import Link from "next/link";
 import { Provider } from "react-redux";
-import axios from "axios";
 
 import Layout from "../components/Layout";
 import WithReduxApp from "../lib/with-redux";
